@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning: Everyday Language (Trọn bộ 15 Chủ đề)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+        .sidebar { height: calc(100vh - 64px); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+    <header class="bg-blue-700 text-white h-16 flex items-center px-6 shadow-md z-10 shrink-0">
+        <h1 class="text-xl font-bold"><i class="fa-solid fa-graduation-cap mr-2"></i> Khóa Học Giao Tiếp: Everyday Language</h1>
+    </header>
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="w-80 bg-white border-r shadow-sm overflow-y-auto sidebar shrink-0">
+            <h2 class="font-bold text-lg p-4 border-b bg-gray-50 text-gray-800"><i class="fa-solid fa-list mr-2"></i>15 Chủ Đề (Trang 2-21)</h2>
+            <ul id="topic-list" class="divide-y divide-gray-100"></ul>
+        </aside>
+        <main class="flex-1 flex flex-col bg-slate-50 overflow-hidden">
+            <div class="bg-white px-8 pt-6 border-b shrink-0 shadow-sm z-0">
+                <h2 id="current-topic-title" class="text-2xl font-bold text-gray-800 mb-4 text-blue-900">Đang tải...</h2>
+                <div class="flex gap-6">
+                    <button class="tab-btn active pb-3 px-2 text-gray-500 hover:text-blue-600 transition flex items-center gap-2" onclick="switchTab('vocab')">
+                        <i class="fa-solid fa-book-open-reader"></i> <span>Từ vựng & Phát âm</span>
+                    </button>
+                    <button class="tab-btn pb-3 px-2 text-gray-500 hover:text-blue-600 transition flex items-center gap-2" onclick="switchTab('exercises')">
+                        <i class="fa-solid fa-keyboard"></i> <span>20 Bài tập Đặt câu</span>
+                    </button>
+                </div>
+            </div>
+            <div id="tab-vocab" class="flex-1 overflow-y-auto p-8">
+                <div class="mb-4 text-gray-600 font-medium">Nhấn vào biểu tượng loa để nghe phát âm chuẩn tốc độ chậm.</div>
+                <div id="vocab-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            </div>
+            <div id="tab-exercises" class="flex-1 overflow-y-auto p-8 hidden">
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-200">
+                    <div class="mb-8 border-b pb-4">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Thực hành đặt câu (Tự động chấm lỗi)</h3>
+                    </div>
+                    <div id="exercises-container" class="space-y-10"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Cấu trúc dữ liệu thu gọn để tối ưu dung lượng:
+        // vocab: ["Từ tiếng Anh", "Nghĩa tiếng Việt", "Phiên âm"]
+        // exercises: [Cấp độ (1:Dễ, 2:TB, 3:Khá, 4:Khó), "Câu tiếng Việt", "Câu tiếng Anh"]
+        const lessonData = [
+            {
+                title: "1. A Classroom (Lớp Học)",
+                vocab: [
+                    ["chalkboard", "bảng", "/ˈtʃɔːkbɔːrd/"], ["screen", "màn ảnh", "/skriːn/"], ["student", "học sinh", "/ˈstuːdnt/"], ["overhead projector", "máy chiếu", "/ˌoʊvərhed prəˈdʒektər/"], ["teacher", "giáo viên", "/ˈtiːtʃər/"], ["desk", "bàn", "/desk/"], ["chair/seat", "ghế", "/tʃer/"], ["bookcase", "kệ sách", "/ˈbʊkkeɪs/"], ["globe", "quả địa cầu", "/ɡloʊb/"], ["clock", "đồng hồ", "/klɑːk/"], ["cassette player", "máy cát sét", "/kəˈset ˈpleɪər/"], ["map", "bản đồ", "/mæp/"], ["pencil sharpener", "máy gọt bút chì", "/ˈpensl ˈʃɑːrpnər/"], ["bulletin board", "bảng thông cáo", "/ˈbʊlətɪn bɔːrd/"], ["computer", "máy vi tính", "/kəmˈpjuːtər/"], ["chalk", "phấn", "/tʃɔːk/"], ["chalkboard eraser", "cái xóa bảng", "/ˈtʃɔːkbɔːrd ɪˈreɪsər/"], ["pen", "bút", "/pen/"], ["marker", "bút màu", "/ˈmɑːrkər/"], ["pencil", "bút chì", "/ˈpensl/"], ["pencil eraser", "tẩy", "/ˈpensl ɪˈreɪsər/"], ["textbook", "sách", "/ˈtekstbʊk/"], ["workbook", "sách làm bài tập", "/ˈwɜːrkbʊk/"], ["binder/notebook", "tập sách có 3 lỗ", "/ˈbaɪndər/"], ["notebook paper", "trang giấy", "/ˈnoʊtbʊk ˈpeɪpər/"], ["spiral notebook", "sách có gáy lò xo", "/ˈspaɪrəl ˈnoʊtbʊk/"], ["ruler", "thước", "/ˈruːlər/"], ["dictionary", "tự điển", "/ˈdɪkʃəneri/"], ["picture dictionary", "tự điển hình", "/ˈpɪktʃər ˈdɪkʃəneri/"], ["the alphabet", "chữ cái", "/ði ˈælfəbet/"], ["numbers", "số", "/ˈnʌmbərz/"], ["Raise your hand", "Giơ tay lên", "/reɪz jɔːr hænd/"], ["Talk to the teacher", "Nói với giáo viên", "/tɔːk tuː ðə ˈtiːtʃər/"], ["Listen to a cassette", "Nghe cát sét", "/ˈlɪsn tuː ə kəˈset/"], ["Stand up", "Đứng lên", "/stænd ʌp/"], ["Sit down", "Ngồi xuống", "/sɪt daʊn/"], ["Point to the picture", "Chỉ vào tranh", "/pɔɪnt tuː ðə ˈpɪktʃər/"], ["Write on the board", "Viết lên bảng", "/raɪt ɑːn ðə bɔːrd/"], ["Erase the board", "Xóa bảng", "/ɪˈreɪs ðə bɔːrd/"], ["Open your book", "Mở sách ra", "/ˈoʊpən jɔːr bʊk/"], ["Close your book", "Gấp sách lại", "/kloʊz jɔːr bʊk/"], ["Take out your pencil", "Cầm bút chì lên", "/teɪk aʊt jɔːr ˈpensl/"], ["Put away your pencil", "Bỏ bút chì xuống", "/pʊt əˈweɪ jɔːr ˈpensl/"]
+                ],
+                exercises: [
+                    [1, "Đứng lên.", "Stand up."], [1, "Ngồi xuống.", "Sit down."], [1, "Mở sách của bạn ra.", "Open your book."], [1, "Gấp sách của bạn lại.", "Close your book."], [1, "Giơ tay lên.", "Raise your hand."],
+                    [2, "Nhìn vào bảng.", "Look at the chalkboard."], [2, "Xin vui lòng xóa bảng.", "Please erase the board."], [2, "Nói chuyện với giáo viên.", "Talk to the teacher."], [2, "Lấy bút chì của bạn ra.", "Take out your pencil."], [2, "Viết tên của bạn lên bảng.", "Write your name on the board."],
+                    [3, "Bạn có thể cho tôi mượn một cây bút chì không?", "Can you lend me a pencil?"], [3, "Xin lỗi, tôi không có cục tẩy.", "Sorry, I do not have an eraser."], [3, "Vui lòng mở sách bài tập của bạn ra.", "Please open your workbook."], [3, "Giáo viên đang đứng gần màn ảnh.", "The teacher is standing near the screen."], [3, "Chúng ta có một quả địa cầu trong lớp học.", "We have a globe in the classroom."],
+                    [4, "Học sinh đang nghe máy cát-sét.", "The student is listening to a cassette player."], [4, "Bạn có biết sử dụng máy vi tính không?", "Do you know how to use a computer?"], [4, "Hãy cất sách đi và lấy một tờ giấy ra.", "Put away your book and take out notebook paper."], [4, "Có một cái kệ sách và một cái bảng thông báo.", "There is a bookcase and a bulletin board."], [4, "Đánh dấu câu trả lời đúng bằng bút màu.", "Mark the correct answer with a marker."]
+                ]
+            },
+            {
+                title: "2. Personal Information (Lý Lịch)",
+                vocab: [
+                    ["name", "họ và tên", "/neɪm/"], ["first name", "tên", "/fɜːrst neɪm/"], ["middle initial", "chữ lót viết tắt", "/ˈmɪdl ɪˈnɪʃl/"], ["last name", "họ", "/læst neɪm/"], ["address", "địa chỉ", "/ˈædres/"], ["apt. #", "căn nhà số", "/əˈpɑːrtmənt ˈnʌmbər/"], ["city", "thành phố", "/ˈsɪti/"], ["state", "tiểu bang", "/steɪt/"], ["ZIP code", "số khu vực", "/zɪp koʊd/"], ["area code", "số vùng", "/ˈeriə koʊd/"], ["telephone number", "số điện thoại", "/ˈtelɪfoʊn ˈnʌmbər/"], ["sex", "giới", "/seks/"], ["male", "nam", "/meɪl/"], ["female", "nữ", "/ˈfiːmeɪl/"], ["Social Security number", "số an sinh xã hội", "/ˈsoʊʃl sɪˈkjʊrəti ˈnʌmbər/"], ["date of birth", "ngày sinh", "/deɪt əv bɜːrθ/"], ["place of birth", "nơi sinh", "/pleɪs əv bɜːrθ/"], ["signature", "chữ ký", "/ˈsɪɡnətʃər/"], ["Spell your name", "Đánh vần tên", "/spel jɔːr neɪm/"], ["Fill out a form", "Điền đơn", "/fɪl aʊt ə fɔːrm/"], ["Print your name", "Viết tên bằng chữ in", "/prɪnt jɔːr neɪm/"], ["Sign your name", "Ký tên", "/saɪn jɔːr neɪm/"]
+                ],
+                exercises: [
+                    [1, "Tên tôi là Sam.", "My first name is Sam."], [1, "Ký tên của bạn.", "Sign your name."], [1, "Họ của bạn là gì?", "What is your last name?"], [1, "Điền đơn này.", "Fill out this form."], [1, "Đánh vần tên của bạn.", "Spell your name."],
+                    [2, "Địa chỉ của bạn là gì?", "What is your address?"], [2, "Anh ấy là nam.", "He is male."], [2, "Số điện thoại của cô ấy là gì?", "What is her telephone number?"], [2, "Nơi sinh của bạn ở đâu?", "Where is your place of birth?"], [2, "Viết tên bằng chữ in.", "Print your name."],
+                    [3, "Số khu vực của thành phố này là gì?", "What is the ZIP code of this city?"], [3, "Chữ lót của tôi là B.", "My middle initial is B."], [3, "Số vùng của bạn là bao nhiêu?", "What is your area code?"], [3, "Ngày sinh của tôi là vào tháng Năm.", "My date of birth is in May."], [3, "Cô ấy sống ở căn nhà số 10.", "She lives in apartment number 10."],
+                    [4, "Vui lòng cho tôi biết số an sinh xã hội của bạn.", "Please tell me your Social Security number."], [4, "Họ của bạn từ bố hay từ mẹ?", "Is your last name from your father or your mother?"], [4, "Đừng quên chữ ký của bạn ở cuối tờ đơn.", "Do not forget your signature at the end of the form."], [4, "Tôi đến từ thành phố New York, tiểu bang New York.", "I come from New York city, New York state."], [4, "Bạn có thể đánh vần lại họ của mình không?", "Can you spell your last name again?"]
+                ]
+            },
+            {
+                title: "3. School (Trường Học)",
+                vocab: [
+                    ["classroom", "phòng học", "/ˈklæsruːm/"], ["teacher", "giáo viên", "/ˈtiːtʃər/"], ["auditorium", "thính đường/giảng đường", "/ˌɔːdɪˈtɔːriəm/"], ["cafeteria", "phòng ăn", "/ˌkæfəˈtɪriə/"], ["lunch benches", "ghế dài để ngồi ăn trưa", "/lʌntʃ bentʃɪz/"], ["library", "thư viện", "/ˈlaɪbreri/"], ["lockers", "hộc để đồ", "/ˈlɑːkərz/"], ["rest rooms", "nhà vệ sinh", "/rest ruːmz/"], ["gym", "phòng tập thể thao", "/dʒɪm/"], ["bleachers", "khán đài", "/ˈbliːtʃərz/"], ["track", "sân điền kinh", "/træk/"], ["field", "sân", "/fiːld/"], ["principal's office", "văn phòng hiệu trưởng", "/ˈprɪnsəplz ˈɔːfɪs/"], ["principal", "hiệu trưởng", "/ˈprɪnsəpl/"], ["counselor's office", "phòng cố vấn", "/ˈkaʊnsələrz ˈɔːfɪs/"], ["counselor", "cố vấn viên", "/ˈkaʊnsələr/"], ["main office", "văn phòng chính", "/meɪn ˈɔːfɪs/"], ["clerk", "thư ký", "/klɜːrk/"]
+                ],
+                exercises: [
+                    [1, "Thư viện ở đâu?", "Where is the library?"], [1, "Đi đến phòng học.", "Go to the classroom."], [1, "Cô ấy là giáo viên.", "She is a teacher."], [1, "Phòng ăn ở đằng kia.", "The cafeteria is over there."], [1, "Mở hộc để đồ của bạn.", "Open your locker."],
+                    [2, "Tôi ăn ở trên ghế dài.", "I eat on the lunch benches."], [2, "Khán đài thì lớn.", "The bleachers are big."], [2, "Hiệu trưởng đang ở trong văn phòng.", "The principal is in the office."], [2, "Chúng tôi chơi trên sân.", "We play on the field."], [2, "Hỏi người thư ký.", "Ask the clerk."],
+                    [3, "Phòng tập thể thao nằm cạnh sân điền kinh.", "The gym is next to the track."], [3, "Văn phòng chính ở tầng một.", "The main office is on the first floor."], [3, "Cố vấn viên giúp đỡ học sinh.", "The counselor helps the students."], [3, "Nhà vệ sinh có sạch không?", "Are the rest rooms clean?"], [3, "Có một cuộc họp ở giảng đường.", "There is a meeting in the auditorium."],
+                    [4, "Bạn có bao giờ nói chuyện với hiệu trưởng trường bạn không?", "Do you ever talk to the principal of your school?"], [4, "Học sinh cất sách của họ trong hộc để đồ.", "Students keep their books in the lockers."], [4, "Trường của bạn có chỗ nào cho bạn ăn không?", "Is there a place for you to eat at your school?"], [4, "Hãy đến văn phòng cố vấn nếu bạn cần lời khuyên.", "Go to the counselor's office if you need advice."], [4, "Trường học của tôi có một sân điền kinh rất đẹp.", "My school has a very beautiful track."]
+                ]
+            },
+            {
+                title: "4. Studying (Học)",
+                vocab: [
+                    ["Look up a word", "Tìm một từ", "/lʊk ʌp ə wɜːrd/"], ["Read the word", "Đọc từ đó", "/riːd ðə wɜːrd/"], ["Say the word", "Đọc từ đó lên", "/seɪ ðə wɜːrd/"], ["Repeat the word", "Lập lại từ đó", "/rɪˈpiːt ðə wɜːrd/"], ["Spell the word", "Đánh vần từ đó", "/spel ðə wɜːrd/"], ["Copy the word", "Chép lại từ đó", "/ˈkɑːpi ðə wɜːrd/"], ["Ask a question", "Đặt câu hỏi", "/æsk ə ˈkwestʃən/"], ["Answer a question", "Trả lời câu hỏi", "/ˈænsər ə ˈkwestʃən/"], ["Share a book", "Dùng chung quyển sách", "/ʃer ə bʊk/"], ["Help your partner", "Giúp bạn", "/help jɔːr ˈpɑːrtnər/"], ["Brainstorm a list", "Động não lập bản liệt kê", "/ˈbreɪnstɔːrm ə lɪst/"], ["Discuss the list", "Thảo luận về bản liệt kê", "/dɪˈskʌs ðə lɪst/"], ["Draw a picture", "Vẽ hình", "/drɔː ə ˈpɪktʃər/"], ["Dictate a sentence", "Đọc lên một câu", "/ˈdɪkteɪt ə ˈsentəns/"], ["Talk with each other", "Nói chuyện với nhau", "/tɔːk wɪθ iːtʃ ˈʌðər/"], ["Pass out the papers", "Phát bài ra", "/pæs aʊt ðə ˈpeɪpərz/"], ["Collect the papers", "Thâu bài làm", "/kəˈlekt ðə ˈpeɪpərz/"], ["Fill in the blank", "Điền vào chỗ trống", "/fɪl ɪn ðə blæŋk/"], ["Circle the answer", "Khoanh câu trả lời", "/ˈsɜːrkl ði ˈænsər/"], ["Mark the answer sheet", "Đánh dấu vào trang trả lời", "/mɑːrk ði ˈænsər ʃiːt/"], ["Cross out the word", "Gạch bỏ chữ (đó)", "/krɔːs aʊt ðə wɜːrd/"], ["Underline the word", "Gạch dưới chữ (đó)", "/ˌʌndərˈlaɪn ðə wɜːrd/"], ["Put the words in order", "Xếp các chữ theo thứ tự", "/pʊt ðə wɜːrdz ɪn ˈɔːrdər/"], ["Match the items", "Ráp chữ/số thích hợp", "/mætʃ ði ˈaɪtəmz/"], ["Check your work", "Kiểm lại bài làm", "/tʃek jɔːr wɜːrk/"], ["Correct the mistake", "Sửa lỗi", "/kəˈrekt ðə mɪˈsteɪk/"]
+                ],
+                exercises: [
+                    [1, "Tìm một từ.", "Look up a word."], [1, "Đọc từ đó.", "Read the word."], [1, "Vẽ hình.", "Draw a picture."], [1, "Sửa lỗi.", "Correct the mistake."], [1, "Khoanh câu trả lời.", "Circle the answer."],
+                    [2, "Đặt một câu hỏi.", "Ask a question."], [2, "Giúp bạn của bạn.", "Help your partner."], [2, "Điền vào chỗ trống.", "Fill in the blank."], [2, "Kiểm lại bài làm của bạn.", "Check your work."], [2, "Gạch dưới chữ đó.", "Underline the word."],
+                    [3, "Tôi có thể dùng chung sách của bạn không?", "Can I share your book?"], [3, "Xin vui lòng phát bài ra.", "Please pass out the papers."], [3, "Chúng ta hãy thảo luận về bản liệt kê.", "Let's discuss the list."], [3, "Xếp các chữ theo thứ tự đúng.", "Put the words in order."], [3, "Gạch bỏ từ bị sai.", "Cross out the wrong word."],
+                    [4, "Làm việc theo nhóm và nói chuyện với nhau.", "Work in a group and talk with each other."], [4, "Giáo viên sẽ đọc lên một câu cho bạn viết.", "The teacher will dictate a sentence for you to write."], [4, "Đánh dấu câu trả lời của bạn trên trang trả lời.", "Mark your answer on the answer sheet."], [4, "Ráp các số với các chữ cái thích hợp.", "Match the numbers with the letters."], [4, "Rất dễ dàng để làm việc với các bạn cùng lớp của bạn.", "It is easy to work with your classmates."]
+                ]
+            },
+            {
+                title: "5. Everyday Conversation (Đàm Thoại Hàng Ngày)",
+                vocab: [
+                    ["greet someone", "chào bạn", "/ɡriːt ˈsʌmwʌn/"], ["begin a conversation", "bắt đầu cuộc đàm thoại", "/bɪˈɡɪn ə ˌkɑːnvərˈseɪʃn/"], ["end the conversation", "chấm dứt cuộc đàm thoại", "/end ðə ˌkɑːnvərˈseɪʃn/"], ["introduce yourself", "giới thiệu mình", "/ˌɪntrəˈduːs jərˈself/"], ["make sure you understand", "nghe lại cho kỹ", "/meɪk ʃʊr juː ˌʌndərˈstænd/"], ["introduce your friend", "giới thiệu bạn", "/ˌɪntrəˈduːs jɔːr frend/"], ["compliment your friend", "khen thưởng bạn", "/ˈkɑːmplɪmənt jɔːr frend/"], ["thank your friend", "cảm ơn bạn", "/θæŋk jɔːr frend/"], ["apologize", "xin lỗi", "/əˈpɑːlədʒaɪz/"], ["Good morning", "Chào buổi sáng", "/ɡʊd ˈmɔːrnɪŋ/"], ["Good afternoon", "Chào buổi chiều", "/ɡʊd ˌæftərˈnuːn/"], ["Good evening", "Chào buổi tối", "/ɡʊd ˈiːvnɪŋ/"], ["How are you?", "Bạn khỏe không?", "/haʊ ɑːr juː/"], ["Fine, thanks", "Khỏe, cảm ơn", "/faɪn θæŋks/"], ["How are things?", "Mọi việc thế nào?", "/haʊ ɑːr θɪŋz/"], ["Good-bye", "Tạm biệt", "/ɡʊdˈbaɪ/"], ["Excuse me", "Xin lỗi (gây chú ý)", "/ɪkˈskjuːs mi/"], ["I'm sorry", "Tôi xin lỗi", "/aɪm ˈsɑːri/"]
+                ],
+                exercises: [
+                    [1, "Chào bạn.", "Hello."], [1, "Chào buổi sáng.", "Good morning."], [1, "Tạm biệt.", "Good-bye."], [1, "Bạn khỏe không?", "How are you?"], [1, "Tôi xin lỗi.", "I am sorry."],
+                    [2, "Chào buổi tối.", "Good evening."], [2, "Khỏe, cảm ơn.", "Fine, thanks."], [2, "Mọi việc thế nào?", "How are things?"], [2, "Tên của tôi là Bill.", "My name is Bill."], [2, "Xin lỗi (cho tôi qua).", "Excuse me."],
+                    [3, "Rất vui được gặp bạn.", "Nice to meet you."], [3, "Đó là một chiếc áo len tuyệt vời!", "That is a great sweater!"], [3, "Bill, đây là Ken.", "Bill, this is Ken."], [3, "Bạn đã nói Bill phải không?", "Did you say Bill?"], [3, "Cảm ơn bạn rất nhiều.", "Thank you very much."],
+                    [4, "Chào, tôi là Mary, tôi muốn tự giới thiệu mình.", "Hi, I am Mary, I want to introduce myself."], [4, "Hãy khen ngợi bạn của bạn về đôi giày mới của anh ấy.", "Compliment your friend on his new shoes."], [4, "Nghe lại cho kỹ để chắc chắn bạn hiểu bài.", "Make sure you understand the lesson."], [4, "Làm thế nào để bắt đầu một cuộc đàm thoại?", "How to begin a conversation?"], [4, "Tôi phải xin lỗi vì đến muộn.", "I must apologize for being late."]
+                ]
+            },
+            {
+                title: "6. The Telephone (Điện Thoại)",
+                vocab: [
+                    ["telephone/phone", "điện thoại", "/ˈtelɪfoʊn/"], ["receiver", "ống nghe", "/rɪˈsiːvər/"], ["cord", "dây", "/kɔːrd/"], ["local call", "gọi gần", "/ˈloʊkl kɔːl/"], ["long-distance call", "gọi xa", "/ˌlɔːŋ ˈdɪstəns kɔːl/"], ["international call", "gọi đi nước ngoài", "/ˌɪntərˈnæʃnəl kɔːl/"], ["operator", "nhân viên tổng đài", "/ˈɑːpəreɪtər/"], ["directory assistance", "giúp đỡ tìm điện thoại", "/dəˈrektəri əˈsɪstəns/"], ["emergency service", "dịch vụ khẩn cấp", "/ɪˈmɜːrdʒənsi ˈsɜːrvɪs/"], ["phone card", "thẻ điện thoại", "/foʊn kɑːrd/"], ["pay phone", "điện thoại công cộng", "/peɪ foʊn/"], ["cordless phone", "điện thoại không dây", "/ˈkɔːrdləs foʊn/"], ["cellular phone", "điện thoại cầm tay", "/ˈseljələr foʊn/"], ["answering machine", "máy trả lời điện thoại", "/ˈænsərɪŋ məˈʃiːn/"], ["telephone book", "niên giám điện thoại", "/ˈtelɪfoʊn bʊk/"], ["pager", "máy báo số điện thoại", "/ˈpeɪdʒər/"], ["Pick up the receiver", "Nhấc ống nghe lên", "/pɪk ʌp ðə rɪˈsiːvər/"], ["Listen for the dial tone", "Nghe tiếng máy", "/ˈlɪsn fɔːr ðə ˈdaɪəl toʊn/"], ["Deposit coins", "Bỏ tiền vào máy", "/dɪˈpɑːzɪt kɔɪnz/"], ["Dial the number", "Bấm số điện thoại", "/ˈdaɪəl ðə ˈnʌmbər/"], ["Leave a message", "Để tin nhắn lại", "/liːv ə ˈmesɪdʒ/"], ["Hang up the receiver", "Gác máy", "/hæŋ ʌp ðə rɪˈsiːvər/"]
+                ],
+                exercises: [
+                    [1, "Nhấc ống nghe lên.", "Pick up the receiver."], [1, "Gác máy.", "Hang up the receiver."], [1, "Bấm số điện thoại.", "Dial the number."], [1, "Đây là điện thoại công cộng.", "This is a pay phone."], [1, "Thẻ điện thoại của tôi đâu?", "Where is my phone card?"],
+                    [2, "Bỏ tiền vào máy.", "Deposit coins."], [2, "Để tin nhắn lại.", "Leave a message."], [2, "Tôi cần gọi đi nước ngoài.", "I need to make an international call."], [2, "Bạn có điện thoại cầm tay không?", "Do you have a cellular phone?"], [2, "Nhân viên tổng đài đang nói.", "The operator is speaking."],
+                    [3, "Gọi dịch vụ khẩn cấp (911).", "Call emergency service."], [3, "Vui lòng lắng nghe tiếng máy.", "Please listen for the dial tone."], [3, "Máy trả lời điện thoại đã bật.", "The answering machine is on."], [3, "Cuộc gọi xa thì đắt tiền.", "A long-distance call is expensive."], [3, "Tôi thích sử dụng điện thoại không dây.", "I like using a cordless phone."],
+                    [4, "Bạn có thể tìm thấy số của anh ấy trong cuốn niên giám điện thoại.", "You can find his number in the telephone book."], [4, "Nếu không có ai trả lời, hãy để tin nhắn lại.", "If nobody answers, leave a message."], [4, "Gọi giúp đỡ tìm số điện thoại (411) để biết thông tin.", "Call directory assistance for information."], [4, "Bạn có thích nói chuyện trên điện thoại không?", "Do you like to talk on the telephone?"], [4, "Tôi đã bị gọi nhầm số hôm qua.", "I got a wrong number yesterday."]
+                ]
+            },
+            {
+                title: "7. Weather (Thời Tiết)",
+                vocab: [
+                    ["hot", "nóng", "/hɑːt/"], ["warm", "ấm", "/wɔːrm/"], ["cool", "mát", "/kuːl/"], ["cold", "lạnh", "/koʊld/"], ["freezing", "lạnh cóng", "/ˈfriːzɪŋ/"], ["sunny/clear", "nắng/quang đãng", "/ˈsʌni/"], ["cloudy", "mây mù", "/ˈklaʊdi/"], ["raining", "mưa", "/ˈreɪnɪŋ/"], ["snowing", "có tuyết", "/ˈsnoʊɪŋ/"], ["windy", "có gió", "/ˈwɪndi/"], ["foggy", "có sương mù", "/ˈfɔːɡi/"], ["humid", "ẩm", "/ˈhjuːmɪd/"], ["icy", "đông đá", "/ˈaɪsi/"], ["smoggy", "nhiễm khói mù", "/ˈsmɑːɡi/"], ["heat wave", "nóng (từng đợt)", "/hiːt weɪv/"], ["thunderstorm", "giông bão", "/ˈθʌndərstɔːrm/"], ["lightning", "chớp", "/ˈlaɪtnɪŋ/"], ["hailstorm", "bão mưa đá", "/ˈheɪlstɔːrm/"], ["hail", "mưa đá", "/heɪl/"], ["snowstorm", "bão tuyết", "/ˈsnoʊstɔːrm/"], ["dust storm", "bão cát", "/dʌst stɔːrm/"]
+                ],
+                exercises: [
+                    [1, "Trời nóng.", "It is hot."], [1, "Trời mưa.", "It is raining."], [1, "Trời có gió.", "It is windy."], [1, "Trời lạnh.", "It is cold."], [1, "Trời nắng.", "It is sunny."],
+                    [2, "Hôm nay trời ấm.", "Today it is warm."], [2, "Có bão tuyết.", "There is a snowstorm."], [2, "Tôi thấy sương mù.", "I see foggy weather."], [2, "Trời lạnh cóng ngoài kia.", "It is freezing outside."], [2, "Có chớp trên trời.", "There is lightning in the sky."],
+                    [3, "Ngày hôm qua trời mây mù.", "Yesterday it was cloudy."], [3, "Có một đợt nóng vào tuần tới.", "There is a heat wave next week."], [3, "Nhiệt độ là 98 độ.", "It is 98 degrees."], [3, "Trời nhiễm khói mù ở thành phố.", "It is smoggy in the city."], [3, "Bão mưa đá làm hỏng xe.", "The hailstorm damaged the car."],
+                    [4, "Chúng ta không thể lái xe vì đường đông đá.", "We cannot drive because the road is icy."], [4, "Trời ẩm khiến tôi cảm thấy không thoải mái.", "Humid weather makes me feel uncomfortable."], [4, "Bão cát đang thổi qua nhà tôi.", "A dust storm is blowing through my house."], [4, "Trời quang đãng rất tốt cho chuyến đi biển.", "Clear weather is very good for a beach trip."], [4, "Giông bão sẽ bắt đầu vào lúc nửa đêm.", "The thunderstorm will start at midnight."]
+                ]
+            },
+            {
+                title: "8. Describing Things (Mô Tả Đồ Vật)",
+                vocab: [
+                    ["little hand", "tay nhỏ", "/ˈlɪtl hænd/"], ["big hand", "tay lớn", "/bɪɡ hænd/"], ["fast driver", "người lái nhanh", "/fæst ˈdraɪvər/"], ["slow driver", "người lái chậm", "/sloʊ ˈdraɪvər/"], ["hard chair", "ghế cứng", "/hɑːrd tʃer/"], ["soft chair", "ghế mềm", "/sɔːft tʃer/"], ["thick book", "quyển sách dày", "/θɪk bʊk/"], ["thin book", "quyển sách mỏng", "/θɪn bʊk/"], ["full glass", "ly đầy", "/fʊl ɡlæs/"], ["empty glass", "ly không", "/ˈempti ɡlæs/"], ["noisy children", "con trẻ ồn ào", "/ˈnɔɪzi ˈtʃɪldrən/"], ["quiet children", "con trẻ yên lặng", "/ˈkwaɪət ˈtʃɪldrən/"], ["heavy box", "hộp nặng", "/ˈhevi bɑːks/"], ["light box", "hộp nhẹ", "/laɪt bɑːks/"], ["neat closet", "tủ áo gọn gàng", "/niːt ˈklɑːzɪt/"], ["messy closet", "tủ áo bừa bãi", "/ˈmesi ˈklɑːzɪt/"], ["good dog", "chó ngoan", "/ɡʊd dɔːɡ/"], ["bad dog", "chó hư", "/bæd dɔːɡ/"], ["expensive ring", "nhẫn đắt tiền", "/ɪkˈspensɪv rɪŋ/"], ["cheap ring", "nhẫn rẻ tiền", "/tʃiːp rɪŋ/"], ["beautiful view", "cảnh đẹp", "/ˈbjuːtɪfl vjuː/"], ["ugly view", "cảnh xấu", "/ˈʌɡli vjuː/"], ["easy problem", "bài toán dễ", "/ˈiːzi ˈprɑːbləm/"], ["difficult problem", "bài toán khó", "/ˈdɪfɪkəlt ˈprɑːbləm/"]
+                ],
+                exercises: [
+                    [1, "Ly đầy.", "Full glass."], [1, "Tay lớn.", "Big hand."], [1, "Ghế mềm.", "Soft chair."], [1, "Chó ngoan.", "Good dog."], [1, "Bài toán dễ.", "Easy problem."],
+                    [2, "Người lái xe nhanh.", "Fast driver."], [2, "Đó là một hộp nặng.", "That is a heavy box."], [2, "Tủ áo của tôi gọn gàng.", "My closet is neat."], [2, "Đây là quyển sách dày.", "This is a thick book."], [2, "Những đứa trẻ ồn ào.", "Noisy children."],
+                    [3, "Tôi không thích cảnh xấu.", "I do not like the ugly view."], [3, "Nhẫn này rất đắt tiền.", "This ring is very expensive."], [3, "Ngồi trên chiếc ghế cứng thì mỏi.", "Sitting on a hard chair is tiring."], [3, "Tôi muốn mua một chiếc nhẫn rẻ tiền.", "I want to buy a cheap ring."], [3, "Bức ảnh cho thấy một cảnh đẹp.", "The picture shows a beautiful view."],
+                    [4, "Bạn là người lái nhanh hay chậm?", "Are you a fast driver or a slow driver?"], [4, "Tủ áo bừa bãi chứa rất nhiều quần áo cũ.", "The messy closet has a lot of old clothes."], [4, "Cô bé có đôi tay nhỏ đang cầm một hộp nhẹ.", "The girl with little hands is holding a light box."], [4, "Những đứa trẻ yên lặng đang giải một bài toán khó.", "The quiet children are solving a difficult problem."], [4, "Xin vui lòng rót nước vào cái ly không này.", "Please pour water into this empty glass."]
+                ]
+            },
+            {
+                title: "9. Colors (Màu Sắc)",
+                vocab: [
+                    ["blue", "xanh nước biển", "/bluː/"], ["dark blue", "xanh đậm", "/dɑːrk bluː/"], ["light blue", "xanh lạt", "/laɪt bluː/"], ["turquoise", "óng ánh xanh", "/ˈtɜːrkwɔɪz/"], ["gray", "xám", "/ɡreɪ/"], ["orange", "màu cam", "/ˈɔːrɪndʒ/"], ["purple", "tím", "/ˈpɜːrpl/"], ["green", "xanh lá cây", "/ɡriːn/"], ["beige", "nâu vàng lạt", "/beɪʒ/"], ["pink", "hồng", "/pɪŋk/"], ["brown", "nâu", "/braʊn/"], ["yellow", "vàng", "/ˈjeloʊ/"], ["red", "đỏ", "/red/"], ["white", "trắng", "/waɪt/"], ["black", "đen", "/blæk/"]
+                ],
+                exercises: [
+                    [1, "Màu đỏ.", "Red."], [1, "Màu đen.", "Black."], [1, "Màu trắng.", "White."], [1, "Màu vàng.", "Yellow."], [1, "Màu cam.", "Orange."],
+                    [2, "Xe của tôi màu xám.", "My car is gray."], [2, "Tôi thích màu hồng.", "I like pink."], [2, "Đó là màu xanh đậm.", "That is dark blue."], [2, "Cỏ có màu xanh lá cây.", "The grass is green."], [2, "Tường màu nâu.", "The wall is brown."],
+                    [3, "Cô ấy đang mặc một chiếc áo sơ mi màu lạt.", "She is wearing a light blue shirt."], [3, "Màu nâu vàng lạt là một màu đẹp.", "Beige is a beautiful color."], [3, "Tôi có một đôi giày màu tím.", "I have purple shoes."], [3, "Hôm nay bạn mặc quần áo màu gì?", "What colors are you wearing today?"], [3, "Đó là một bộ đồ màu đen tối.", "That is a dark black suit."],
+                    [4, "Bầu trời có màu óng ánh xanh.", "The sky is turquoise."], [4, "Hãy gọi tên màu sắc của các bộ quần áo bạn thấy.", "Name the colors of the clothing you see."], [4, "Có màu nào mà bạn không thích không?", "Is there a color you do not like?"], [4, "Chiếc xe màu đỏ chạy qua ngã tư.", "The red car drives through the intersection."], [4, "Hoa màu tím nở vào mùa xuân.", "Purple flowers bloom in spring."]
+                ]
+            },
+            {
+                title: "10. Prepositions (Giới Từ)",
+                vocab: [
+                    ["next to", "sát bên", "/nekst tuː/"], ["on the left", "bên trái", "/ɑːn ðə left/"], ["on the right", "bên phải", "/ɑːn ðə raɪt/"], ["behind", "phía sau", "/bɪˈhaɪnd/"], ["in front of", "phía trước", "/ɪn frʌnt əv/"], ["in", "ở trong", "/ɪn/"], ["above", "ở trên", "/əˈbʌv/"], ["below", "ở dưới", "/bɪˈloʊ/"], ["on", "ở trên mặt", "/ɑːn/"], ["under", "ở dưới (có che)", "/ˈʌndər/"], ["between", "ở giữa", "/bɪˈtwiːn/"], ["near", "gần", "/nɪr/"], ["far from", "xa", "/fɑːr frəm/"]
+                ],
+                exercises: [
+                    [1, "Ở trong hộp.", "In the box."], [1, "Ở bên trái.", "On the left."], [1, "Ở bên phải.", "On the right."], [1, "Ở phía trước.", "In front of."], [1, "Ở phía sau.", "Behind."],
+                    [2, "Cuốn sách ở trên bàn.", "The book is on the desk."], [2, "Con mèo ở dưới ghế.", "The cat is under the chair."], [2, "Ngôi nhà ở gần trường.", "The house is near the school."], [2, "Tôi đứng ở giữa.", "I stand in between."], [2, "Bức tranh ở trên tường.", "The picture is on the wall."],
+                    [3, "Hộp màu xám ở phía sau hộp màu đỏ.", "The gray box is behind the red box."], [3, "Hộp màu trắng ở sát bên trái hộp màu đen.", "The white box is next to the black box on the left."], [3, "Hộp màu đỏ ở xa hộp màu đen.", "The red box is far from the black box."], [3, "Đồng hồ ở trên cánh cửa.", "The clock is above the door."], [3, "Sàn nhà ở dưới cái bàn.", "The floor is below the table."],
+                    [4, "Hộp màu xanh lá cây ở trên hộp màu cam.", "The green box is above the orange box."], [4, "Hộp màu hồng ở giữa hộp màu tím và hộp màu nâu.", "The pink box is between the purple box and the brown box."], [4, "Con chó đang trốn dưới gầm giường.", "The dog is hiding under the bed."], [4, "Cô giáo đứng phía trước bảng trắng.", "The teacher stands in front of the chalkboard."], [4, "Trường học ở cách xa nhà tôi.", "The school is far from my house."]
+                ]
+            },
+            {
+                title: "11. Numbers & Measurements",
+                vocab: [
+                    ["zero", "số không", "/ˈzɪroʊ/"], ["one", "một", "/wʌn/"], ["ten", "mười", "/ten/"], ["eleven", "mười một", "/ɪˈlevn/"], ["twelve", "mười hai", "/twelv/"], ["thirteen", "mười ba", "/ˌθɜːrˈtiːn/"], ["twenty", "hai mươi", "/ˈtwenti/"], ["thirty", "ba mươi", "/ˈθɜːrti/"], ["one hundred", "một trăm", "/wʌn ˈhʌndrəd/"], ["one thousand", "một ngàn", "/wʌn ˈθaʊznd/"], ["one million", "một triệu", "/wʌn ˈmɪljən/"], ["first", "thứ nhất", "/fɜːrst/"], ["second", "thứ nhì", "/ˈsekənd/"], ["third", "thứ ba", "/θɜːrd/"], ["one-half", "một phần hai", "/wʌn hæf/"], ["one-third", "một phần ba", "/wʌn θɜːrd/"], ["one-fourth", "một phần tư", "/wʌn fɔːrθ/"], ["ten percent", "mười phần trăm", "/ten pərˈsent/"], ["centimeter", "xăng-ti-mét", "/ˈsentɪmiːtər/"], ["inch", "đốt (đơn vị đo)", "/ɪntʃ/"], ["height", "chiều cao", "/haɪt/"], ["depth", "chiều sâu", "/depθ/"], ["length", "chiều dài", "/leŋθ/"], ["width", "chiều rộng", "/wɪdθ/"]
+                ],
+                exercises: [
+                    [1, "Số không.", "Zero."], [1, "Một trăm.", "One hundred."], [1, "Thứ nhất.", "First."], [1, "Thứ nhì.", "Second."], [1, "Một phần hai.", "One-half."],
+                    [2, "Mười phần trăm.", "Ten percent."], [2, "Chiều cao của bạn.", "Your height."], [2, "Ba mươi người.", "Thirty people."], [2, "Một triệu đô la.", "One million dollars."], [2, "Một phần ba cái bánh.", "One-third of the cake."],
+                    [3, "Cuốn sách dài hai mươi xăng-ti-mét.", "The book is twenty centimeters long."], [3, "Chiều rộng là mười inch.", "The width is ten inches."], [3, "Chiều sâu của hồ là năm foot.", "The depth of the pool is five feet."], [3, "Một ngàn lẻ một đêm.", "One thousand one nights."], [3, "Cô ấy đứng thứ ba trong lớp.", "She is third in the class."],
+                    [4, "Khoảng cách từ nhà đến trường là một dặm.", "The distance from home to school is one mile."], [4, "Hôm nay có bao nhiêu học sinh trong lớp?", "How many students are in class today?"], [4, "Ai là người đầu tiên đến lớp hôm nay?", "Who was the first person in class today?"], [4, "Bạn tôi đã ăn ba phần tư chiếc bánh pizza.", "My friend ate three-fourths of the pizza."], [4, "Một trăm phần trăm học sinh đều đỗ kỳ thi.", "One hundred percent of the students passed the exam."]
+                ]
+            },
+            {
+                title: "12. Time (Thì Giờ)",
+                vocab: [
+                    ["second", "giây", "/ˈsekənd/"], ["minute", "phút", "/ˈmɪnɪt/"], ["hour", "giờ", "/ˈaʊər/"], ["one o'clock", "một giờ", "/wʌn əˈklɑːk/"], ["one-oh-five", "một giờ năm", "/wʌn oʊ faɪv/"], ["one-fifteen", "một giờ mười lăm", "/wʌn fɪfˈtiːn/"], ["one-thirty", "một giờ ba mươi", "/wʌn ˈθɜːrti/"], ["a quarter to two", "hai giờ kém mười lăm", "/ə ˈkwɔːrtər tuː tuː/"], ["morning", "sáng", "/ˈmɔːrnɪŋ/"], ["noon", "trưa", "/nuːn/"], ["afternoon", "chiều", "/ˌæftərˈnuːn/"], ["evening", "tối", "/ˈiːvnɪŋ/"], ["night", "đêm", "/naɪt/"], ["midnight", "nửa đêm", "/ˈmɪdnaɪt/"], ["early", "sớm", "/ˈɜːrli/"], ["late", "muộn", "/leɪt/"], ["on time", "đúng giờ", "/ɑːn taɪm/"], ["time zones", "múi giờ", "/taɪm zoʊnz/"], ["standard time", "giờ căn bản", "/ˈstændərd taɪm/"], ["daylight saving time", "giờ ngày ngắn", "/ˈdeɪlaɪt ˈseɪvɪŋ taɪm/"]
+                ],
+                exercises: [
+                    [1, "Một giờ.", "One o'clock."], [1, "Buổi sáng.", "Morning."], [1, "Đúng giờ.", "On time."], [1, "Sớm.", "Early."], [1, "Muộn.", "Late."],
+                    [2, "Buổi trưa.", "Noon."], [2, "Nửa đêm.", "Midnight."], [2, "Một phút.", "One minute."], [2, "Năm giây.", "Five seconds."], [2, "Hai giờ kém mười lăm.", "A quarter to two."],
+                    [3, "Mấy giờ rồi?", "What time is it?"], [3, "Bây giờ là một giờ ba mươi.", "It is one-thirty."], [3, "Bạn thức dậy lúc mấy giờ?", "What time do you wake up?"], [3, "Tôi đi học vào buổi chiều.", "I go to school in the afternoon."], [3, "Hôm nay cô ấy đến muộn.", "She is late today."],
+                    [4, "Mỗi ngày bạn học tiếng Anh bao nhiêu giờ?", "How many hours a day do you study English?"], [4, "Nếu bạn bè đến muộn, bạn sẽ chờ họ bao lâu?", "How long will you wait for your friends if they are late?"], [4, "Tôi thường xem vô tuyến vào buổi tối.", "I usually watch television in the evening."], [4, "Chúng tôi có một cuộc họp lúc nửa đêm.", "We have a meeting at midnight."], [4, "Anh ấy luôn đến lớp đúng giờ.", "He always comes to class on time."]
+                ]
+            },
+            {
+                title: "13. The Calendar (Lịch)",
+                vocab: [
+                    ["Sunday", "Chủ nhật", "/ˈsʌndeɪ/"], ["Monday", "Thứ hai", "/ˈmʌndeɪ/"], ["Tuesday", "Thứ ba", "/ˈtuːzdeɪ/"], ["Wednesday", "Thứ tư", "/ˈwenzdeɪ/"], ["Thursday", "Thứ năm", "/ˈθɜːrzdeɪ/"], ["Friday", "Thứ sáu", "/ˈfraɪdeɪ/"], ["Saturday", "Thứ bảy", "/ˈsætərdeɪ/"], ["year", "năm", "/jɪr/"], ["month", "tháng", "/mʌnθ/"], ["day", "ngày", "/deɪ/"], ["week", "tuần lễ", "/wiːk/"], ["weekdays", "ngày làm việc", "/ˈwiːkdeɪz/"], ["weekend", "cuối tuần", "/ˈwiːkend/"], ["date", "ngày tháng năm", "/deɪt/"], ["today", "hôm nay", "/təˈdeɪ/"], ["tomorrow", "ngày mai", "/təˈmɔːroʊ/"], ["yesterday", "hôm qua", "/ˈjestərdeɪ/"], ["last week", "tuần trước", "/læst wiːk/"], ["this week", "tuần này", "/ðɪs wiːk/"], ["next week", "tuần tới", "/nekst wiːk/"], ["every day", "mỗi ngày", "/ˈevri deɪ/"], ["once a week", "mỗi tuần một lần", "/wʌns ə wiːk/"], ["twice a week", "mỗi tuần hai lần", "/twaɪs ə wiːk/"], ["spring", "xuân", "/sprɪŋ/"], ["summer", "hạ", "/ˈsʌmər/"], ["fall", "thu", "/fɔːl/"], ["winter", "đông", "/ˈwɪntər/"], ["birthday", "ngày sinh nhật", "/ˈbɜːrθdeɪ/"], ["anniversary", "ngày kỷ niệm", "/ˌænɪˈvɜːrsəri/"], ["holiday", "ngày lễ", "/ˈhɑːlədeɪ/"], ["vacation", "nghỉ hè", "/veɪˈkeɪʃn/"]
+                ],
+                exercises: [
+                    [1, "Hôm nay.", "Today."], [1, "Ngày mai.", "Tomorrow."], [1, "Hôm qua.", "Yesterday."], [1, "Mùa xuân.", "Spring."], [1, "Cuối tuần.", "Weekend."],
+                    [2, "Ngày sinh nhật.", "Birthday."], [2, "Mùa hè nóng.", "Summer is hot."], [2, "Tuần tới.", "Next week."], [2, "Mỗi ngày.", "Every day."], [2, "Thứ hai.", "Monday."],
+                    [3, "Hôm nay là ngày mấy?", "What is today's date?"], [3, "Hôm nay là mùng mười tháng Ba.", "It is March 10th."], [3, "Hôm qua là ngày thứ mấy?", "What day was yesterday?"], [3, "Sinh nhật của tôi vào mùa đông.", "My birthday is in the winter."], [3, "Tôi đi học mỗi tuần hai lần.", "I go to school twice a week."],
+                    [4, "Hôm qua là thứ Hai và hôm nay là thứ Ba.", "Yesterday was Monday and today is Tuesday."], [4, "Bạn đi học thường xuyên như thế nào?", "How often do you come to school?"], [4, "Gia đình tôi sẽ có một kỳ nghỉ hè vào tháng Bảy.", "My family will have a summer vacation in July."], [4, "Kỷ niệm ngày cưới của họ là vào tuần tới.", "Their wedding anniversary is next week."], [4, "Ngân hàng đóng cửa vào ngày nghỉ lễ hợp pháp.", "The bank is closed on a legal holiday."]
+                ]
+            },
+            {
+                title: "14. Money (Tiền)",
+                vocab: [
+                    ["penny/1 cent", "một xu", "/ˈpeni/"], ["nickel/5 cents", "năm xu", "/ˈnɪkl/"], ["dime/10 cents", "mười xu", "/daɪm/"], ["quarter", "hai mươi lăm xu", "/ˈkwɔːrtər/"], ["half dollar", "nửa đô-la", "/hæf ˈdɑːlər/"], ["silver dollar", "một đô la bạc", "/ˈsɪlvər ˈdɑːlər/"], ["dollar", "một đô", "/ˈdɑːlər/"], ["five dollars", "năm đô", "/faɪv ˈdɑːlərz/"], ["ten dollars", "mười đô", "/ten ˈdɑːlərz/"], ["twenty dollars", "hai mươi đô", "/ˈtwenti ˈdɑːlərz/"], ["fifty dollars", "năm mươi đô", "/ˈfɪfti ˈdɑːlərz/"], ["one hundred dollars", "một trăm đô", "/wʌn ˈhʌndrəd ˈdɑːlərz/"], ["cash", "tiền mặt", "/kæʃ/"], ["personal check", "chi phiếu cá nhân", "/ˈpɜːrsənl tʃek/"], ["credit card", "thẻ tín dụng", "/ˈkredɪt kɑːrd/"], ["money order", "ngân phiếu", "/ˈmʌni ˈɔːrdər/"], ["traveler's check", "chi phiếu du lịch", "/ˈtrævələrz tʃek/"], ["borrow", "mượn", "/ˈbɑːroʊ/"], ["lend", "cho mượn", "/lend/"], ["pay back", "trả lại", "/peɪ bæk/"]
+                ],
+                exercises: [
+                    [1, "Một xu.", "A penny."], [1, "Mười xu.", "A dime."], [1, "Một đô la.", "A dollar."], [1, "Tiền mặt.", "Cash."], [1, "Thẻ tín dụng.", "Credit card."],
+                    [2, "Năm đô la.", "Five dollars."], [2, "Hai mươi lăm xu.", "A quarter."], [2, "Chi phiếu cá nhân.", "Personal check."], [2, "Tôi mượn tiền.", "I borrow money."], [2, "Trả lại tiền.", "Pay back money."],
+                    [3, "Tôi thanh toán bằng tiền mặt.", "I pay in cash."], [3, "Bạn có thể cho tôi mượn mười đô la không?", "Can you lend me ten dollars?"], [3, "Cô ấy dùng thẻ tín dụng.", "She uses a credit card."], [3, "Tôi muốn mua một ngân phiếu.", "I want to buy a money order."], [3, "Tờ một trăm đô la màu xanh.", "The one hundred dollar bill is green."],
+                    [4, "Bạn có mang theo chi phiếu du lịch khi đi nghỉ không?", "Do you bring traveler's checks on vacation?"], [4, "Nhớ trả lại tiền mà bạn đã mượn nhé.", "Remember to pay back the money you borrowed."], [4, "Năm mươi đô la là quá đắt cho cái áo này.", "Fifty dollars is too expensive for this shirt."], [4, "Anh ấy đã đưa cho tôi một đồng nửa đô la bằng bạc.", "He gave me a silver half dollar."], [4, "Làm ơn cho tôi đổi tờ hai mươi đô la này.", "Please give me change for this twenty dollar bill."]
+                ]
+            },
+            {
+                title: "15. Shopping (Mua Sắm)",
+                vocab: [
+                    ["price tag", "thẻ giá tiền", "/praɪs tæɡ/"], ["regular price", "giá thường", "/ˈreɡjələr praɪs/"], ["sale price", "giá hạ", "/seɪl praɪs/"], ["bar code", "ký hiệu ghi giá", "/bɑːr koʊd/"], ["receipt", "hóa đơn", "/rɪˈsiːt/"], ["price/cost", "giá cả", "/praɪs/ /kɔːst/"], ["sales tax", "thuế bán", "/seɪlz tæks/"], ["total", "tổng cộng", "/ˈtoʊtl/"], ["change", "tiền thối", "/tʃeɪndʒ/"], ["shop for", "mua sắm", "/ʃɑːp fɔːr/"], ["sell", "bán", "/sel/"], ["pay for/buy", "trả tiền/mua", "/peɪ fɔːr/ /baɪ/"], ["give", "cho", "/ɡɪv/"], ["keep", "giữ", "/kiːp/"], ["return", "trả lại", "/rɪˈtɜːrn/"], ["exchange", "đổi lại", "/ɪksˈtʃeɪndʒ/"], ["amount due", "số tiền phải trả", "/əˈmaʊnt duː/"], ["amount tendered", "số tiền khách đưa", "/əˈmaʊnt ˈtendərd/"]
+                ],
+                exercises: [
+                    [1, "Giá cả.", "Price."], [1, "Thuế bán.", "Sales tax."], [1, "Hóa đơn.", "Receipt."], [1, "Tiền thối.", "Change."], [1, "Tổng cộng.", "Total."],
+                    [2, "Tôi mua sắm áo len.", "I shop for sweaters."], [2, "Họ bán giày.", "They sell shoes."], [2, "Giá thường là bao nhiêu?", "What is the regular price?"], [2, "Giá hạ rất rẻ.", "The sale price is very cheap."], [2, "Giữ lại hóa đơn.", "Keep the receipt."],
+                    [3, "Vui lòng cho tôi thẻ giá tiền.", "Please give me the price tag."], [3, "Tôi muốn đổi cái áo này.", "I want to exchange this shirt."], [3, "Bạn có thể trả lại món hàng này.", "You can return this item."], [3, "Tổng số tiền phải trả là năm mươi đô la.", "The total amount due is fifty dollars."], [3, "Tiền thối của bạn đây.", "Here is your change."],
+                    [4, "Những chiếc áo len này chỉ có chín đô la.", "These sweaters are only nine dollars."], [4, "Ký hiệu ghi giá giúp máy quét tính tiền nhanh hơn.", "The bar code helps the scanner calculate faster."], [4, "Hãy kể tên ba thứ mà bạn phải trả tiền mỗi tháng.", "Name three things you pay for every month."], [4, "Khi mua bằng thẻ tín dụng, bạn sẽ nhận được hóa đơn qua thư.", "When you use a credit card, you get a bill in the mail."], [4, "Bạn thích đi mua sắm ở đâu vào cuối tuần?", "Where do you like to shop on the weekend?"]
+                ]
+            }
+        ];
+
+        let currentTopicIndex = 0;
+
+        function initApp() {
+            const topicList = document.getElementById('topic-list');
+            lessonData.forEach((topic, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <button class="w-full text-left px-5 py-4 hover:bg-blue-50 focus:outline-none transition flex items-center justify-between group ${index === 0 ? 'bg-blue-50 border-l-4 border-blue-600 font-semibold text-blue-700' : 'text-gray-600 border-l-4 border-transparent'}"
+                            onclick="loadTopic(${index}, this)">
+                        <span class="truncate">${topic.title}</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 ${index === 0 ? 'opacity-100 text-blue-600' : 'text-gray-400'} transition-all ml-2"></i>
+                    </button>`;
+                topicList.appendChild(li);
+            });
+            loadTopic(0, topicList.querySelector('button'));
+        }
+
+        function loadTopic(index, btnElement) {
+            currentTopicIndex = index;
+            const topic = lessonData[index];
+            
+            if(btnElement) {
+                document.querySelectorAll('#topic-list button').forEach(btn => {
+                    btn.classList.remove('bg-blue-50', 'border-blue-600', 'font-semibold', 'text-blue-700');
+                    btn.classList.add('border-transparent', 'text-gray-600');
+                    btn.querySelector('i').classList.remove('opacity-100', 'text-blue-600');
+                });
+                btnElement.classList.add('bg-blue-50', 'border-blue-600', 'font-semibold', 'text-blue-700');
+                btnElement.classList.remove('border-transparent', 'text-gray-600');
+                btnElement.querySelector('i').classList.add('opacity-100', 'text-blue-600');
+            }
+
+            document.getElementById('current-topic-title').innerText = topic.title;
+
+            // Load Vocab
+            const vocabGrid = document.getElementById('vocab-grid');
+            vocabGrid.innerHTML = '';
+            topic.vocab.forEach((wordPair, idx) => {
+                vocabGrid.innerHTML += `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow relative">
+                        <div class="absolute -top-3 -left-3 bg-blue-100 text-blue-800 font-bold w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-sm">${idx + 1}</div>
+                        <div class="flex justify-between items-start mt-2">
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">${wordPair[0]}</h4>
+                                <p class="text-blue-600 font-mono text-sm mt-1">${wordPair[2]}</p>
+                                <p class="text-gray-600 mt-2">${wordPair[1]}</p>
+                            </div>
+                            <button onclick="speakWord('${wordPair[0].replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-3 rounded-full transition cursor-pointer">
+                                <i class="fa-solid fa-volume-high text-xl"></i>
+                            </button>
+                        </div>
+                    </div>`;
+            });
+
+            // Load Exercises
+            const exercisesContainer = document.getElementById('exercises-container');
+            exercisesContainer.innerHTML = '';
+            const levelsInfo = [
+                { id: 1, title: "Mức 1: Cực Dễ", color: "text-green-600", bg: "bg-green-50", border: "border-green-200" },
+                { id: 2, title: "Mức 2: Cơ Bản", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
+                { id: 3, title: "Mức 3: Khá Khó", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" },
+                { id: 4, title: "Mức 4: Khó", color: "text-red-600", bg: "bg-red-50", border: "border-red-200" }
+            ];
+
+            levelsInfo.forEach(lvl => {
+                const levelExs = topic.exercises.filter(e => e[0] === lvl.id);
+                if(levelExs.length === 0) return;
+
+                let sectionHtml = `<div class="mb-10"><h4 class="text-lg font-bold ${lvl.color} mb-4 flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-layer-group"></i> ${lvl.title}</h4><div class="space-y-4">`;
+                levelExs.forEach(ex => {
+                    const globalIdx = topic.exercises.indexOf(ex);
+                    sectionHtml += `
+                        <div class="border ${lvl.border} ${lvl.bg} rounded-lg p-5">
+                            <p class="text-gray-800 font-medium text-[1.05rem] mb-3"><span class="font-bold text-gray-500 mr-1">${globalIdx + 1}.</span> ${ex[1]}</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input type="text" id="ex-input-${globalIdx}" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Viết câu tiếng Anh của bạn tại đây...">
+                                <button onclick="checkAnswer(${globalIdx}, '${ex[2].replace(/'/g, "\\'")}')" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 shrink-0">Chấm điểm</button>
+                            </div>
+                            <div id="ex-result-${globalIdx}" class="mt-3 hidden text-sm font-medium p-3 rounded-lg border"></div>
+                        </div>`;
+                });
+                sectionHtml += `</div></div>`;
+                exercisesContainer.innerHTML += sectionHtml;
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('tab-vocab').classList.add('hidden');
+            document.getElementById('tab-exercises').classList.add('hidden');
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+        }
+
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85; // Chậm hơn để người mới học dễ bắt nhịp
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkAnswer(idx, correctAns) {
+            const inputEl = document.getElementById(`ex-input-${idx}`);
+            const resultEl = document.getElementById(`ex-result-${idx}`);
+            const userAns = inputEl.value.trim();
+
+            if(userAns === '') {
+                resultEl.className = "mt-3 text-sm font-medium p-3 rounded-lg bg-yellow-50 text-yellow-700 border-yellow-200 block";
+                resultEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Vui lòng nhập câu trả lời.`;
+                return;
+            }
+
+            const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (normalize(userAns) === normalize(correctAns)) {
+                resultEl.className = "mt-3 text-sm font-medium p-3 rounded-lg bg-green-50 text-green-700 border-green-200 block";
+                resultEl.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-green-600"></i> <strong>Chính xác tuyệt đối!</strong>`;
+            } else {
+                resultEl.className = "mt-3 text-sm font-medium p-3 rounded-lg bg-red-50 text-red-700 border-red-200 block";
+                resultEl.innerHTML = `<div class="flex items-start"><i class="fa-solid fa-circle-xmark mt-1 mr-2 text-red-600"></i><div><strong>Sai ngữ pháp hoặc từ vựng!</strong><br><span class="text-gray-600 mt-1 block">Đáp án mẫu: <span class="font-bold text-green-700 bg-green-100 px-1 rounded">${correctAns}</span></span></div></div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
